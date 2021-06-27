@@ -6,6 +6,7 @@ export default class Movies extends Component {
 		super();
 		this.state = {
 			movies: getMovies(),
+			currSearchText: '',
 		};
 	}
 
@@ -19,47 +20,114 @@ export default class Movies extends Component {
 		});
 	};
 
+	handleSearchChange = (e) => {
+		let val = e.target.value;
+		this.setState({
+			currSearchText: val,
+		});
+	};
+
+	handleRateSort = (e) => {
+		console.log('clicked');
+		let className = e.target.className;
+
+		if (className === 'fas fa-caret-up') {
+			// Descending
+			this.state.movies.sort(function compare(movieObjA, movieObjB) {
+				return movieObjB.dailyRentalRate - movieObjA.dailyRentalRate;
+			});
+		} else {
+			// Ascending
+			this.state.movies.sort(function compare(movieObjA, movieObjB) {
+				return movieObjA.dailyRentalRate - movieObjB.dailyRentalRate;
+			});
+		}
+
+		this.setState({
+			movies: this.state.movies,
+		});
+	};
+
+	handleStockSort = (e) => {
+		console.log('clicked');
+		let className = e.target.className;
+
+		if (className === 'fas fa-caret-up') {
+			// Descending
+			this.state.movies.sort(function compare(movieObjA, movieObjB) {
+				return movieObjB.numberInStock - movieObjA.numberInStock;
+			});
+		} else {
+			// Ascending
+			this.state.movies.sort(function compare(movieObjA, movieObjB) {
+				return movieObjA.numberInStock - movieObjB.numberInStock;
+			});
+		}
+
+		this.setState({
+			movies: this.state.movies,
+		});
+	};
 
 	render() {
+		console.log('render');
 		// deletion is permanent
 		// filtering/searching ek temporary process hai, permanent nhi
 		// jab render hoga to dekhenge ki kuch hai kya text field mei,agar hai to filtered arr banalenge
 		// baar baar text change hone pe orig arr pe effect nhi hona chahiye
 		// field val state to banega hi kyunki uske change pe baar baar jo UI pe show kr rhe hai wo depend krta hai
 		// to jab baar baar render hoga uske change ke wajah se tabhi uss val ke acc banalenge temp arr
-		// jab re-render hoga text field change hone pe tabhi render process mei filtered arr banalenge acc to text field aur wo show // /// krdenge
+		// jab re-render hoga text field change hone pe tabhi render process mei filtered arr banalenge acc to text field aur wo show krdenge
+		let {movies, currSearchText} = this.state;
+		let filteredArr = [];
+
+		if (currSearchText === '') {
+			filteredArr = movies;
+		} else {
+			filteredArr = movies.filter(function (movieObj) {
+				let title = movieObj.title.toLowerCase();
+				return title.includes(currSearchText.toLowerCase());
+			});
+		}
 		return (
 			<div className="container">
 				<div className="row">
-					{' '}
 					{/*Total 12 cols mei divide hoti h*/}
 					<div className="col-3"></div>
 					<div className="col-9">
-					<input type="search" onChange=></input>
+						<input type="search" value={this.state.currSearchText} onChange={this.handleSearchChange}></input>
 						<table className="table">
 							<thead>
 								<tr>
 									<th scope="col">#</th>
 									<th scope="col">Title</th>
 									<th scope="col">Genre</th>
-									<th scope="col">Stock</th>
-									<th scope="col">Rate</th>
+									<th scope="col">
+										<i onClick={this.handleStockSort} className="fas fa-caret-up"></i>
+										Stock
+										<i onClick={this.handleStockSort} className="fas fa-caret-down"></i>
+									</th>
+									<th scope="col">
+										<i onClick={this.handleRateSort} className="fas fa-caret-up"></i>
+										Rate
+										<i onClick={this.handleRateSort} className="fas fa-caret-down"></i>
+									</th>
 									<th></th>
 								</tr>
 							</thead>
 							{/* 
-								{	
-									function abc(){
-										return (<h1>Hello</h1>)
+									{	
+										function abc(){
+											return (<h1>Hello</h1>)
+										}
+										function to bann gya but usko call nhi kr skte to fayead kya, isliye lehte hai ki jsx mei fn declaration not allowed 
+										{abc();} // Error
+										abc(); // Error
+										Bas event ke andar use krskte hai
 									}
-									function to bann gya but usko call nhi kr skte to fayead kya, isliye lehte hai ki jsx mei fn declaration not allowed 
-									{abc();} // Error
-									abc(); // Error
-									Bas event ke andar use krskte hai
-								}
-							 */}
+							 	*/}
 							<tbody>
-								{this.state.movies.map((movieObj) => {
+								{filteredArr.map((movieObj) => {
 									return (
 										<tr key={movieObj._id}>
 											{/*React ko identify/differentiate krane ke liye key chahiye hoti h*/}
