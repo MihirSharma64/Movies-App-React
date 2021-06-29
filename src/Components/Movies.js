@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {getMovies} from './getMovies';
-import axios from 'axios'
+import axios from 'axios';
 
 export default class Movies extends Component {
 	constructor() {
@@ -13,13 +13,14 @@ export default class Movies extends Component {
 		};
 	}
 
-	async componentDidMount(){
-		console.log("component did mount");
+	async componentDidMount() {
+		console.log('component did mount');
 		let res = await axios.get('https://backend-react-movie.herokuapp.com/movies');
 		console.log(res);
-		this.setState({ // ab data agaya hai to setstate krdo taaki phirse render hojaye
-			movies : res.data.movies
-		})
+		this.setState({
+			// ab data agaya hai to setstate krdo taaki phirse render hojaye
+			movies: res.data.movies,
+		});
 	}
 
 	handleDelete = (id) => {
@@ -91,6 +92,13 @@ export default class Movies extends Component {
 		});
 	};
 
+	handleLimitChange = (e) => {
+		let val = e.target.value;
+		this.setState({
+			limit: val,
+		});
+	};
+
 	render() {
 		console.log('render');
 		// deletion is permanent process
@@ -133,8 +141,8 @@ export default class Movies extends Component {
 		// Ab si se ei tak slice krdo, slice(si,ei)->ei wala is not included->(1,4):1 se 3 tak ajayenge
 		filteredArr = filteredArr.slice(si, ei + 1);
 
-		let prevBtnClass = (currPageNumber - 1 > 0) ? 'page-item' : 'page-item disabled';
-		let nextBtnClass = (currPageNumber + 1 <= PagesArr.length) ? 'page-item' : 'page-item disabled';
+		let prevBtnClass = currPageNumber - 1 > 0 ? 'page-item' : 'page-item disabled';
+		let nextBtnClass = currPageNumber + 1 <= PagesArr.length ? 'page-item' : 'page-item disabled';
 
 		return (
 			<div className="container">
@@ -143,6 +151,7 @@ export default class Movies extends Component {
 					<div className="col-3"></div>
 					<div className="col-9">
 						<input type="search" value={this.state.currSearchText} onChange={this.handleSearchChange}></input>
+						<input type="number" value={this.state.limit} onChange={this.handleLimitChange}></input>
 						<table className="table">
 							<thead>
 								<tr>
