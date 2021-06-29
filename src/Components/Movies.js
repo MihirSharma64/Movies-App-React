@@ -1,15 +1,25 @@
 import React, {Component} from 'react';
 import {getMovies} from './getMovies';
+import axios from 'axios'
 
 export default class Movies extends Component {
 	constructor() {
 		super();
 		this.state = {
-			movies: getMovies(),
+			movies: [],
 			currSearchText: '',
 			currPageNumber: 1,
 			limit: 4,
 		};
+	}
+
+	async componentDidMount(){
+		console.log("component did mount");
+		let res = await axios.get('https://backend-react-movie.herokuapp.com/movies');
+		console.log(res);
+		this.setState({ // ab data agaya hai to setstate krdo taaki phirse render hojaye
+			movies : res.data.movies
+		})
 	}
 
 	handleDelete = (id) => {
@@ -250,3 +260,9 @@ export default class Movies extends Component {
 	}
 }
 
+// jo getMovies se data le rhe hai wo actual mei, server se aayega.. To jab tak wo aayega tabtak kuch nhi dikha skte
+// Sideeffects wali cheeze componeentdidmount mei daalte hai
+// componentdidmount mei network se request maaregnge aur jab tak wo nhi aya to loader show krdenge
+
+// Axios promise return krta,fetch bhi use krskte the
+// kabhi render mei hi setstate krdenge to khulle mei to infinite loop hojayegi, agar kabhi set krna ho to render ke andar to conditoin mei krna, wo bhi avoid krne kei koshish krna
