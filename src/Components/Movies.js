@@ -7,6 +7,8 @@ export default class Movies extends Component {
 		this.state = {
 			movies: getMovies(),
 			currSearchText: '',
+			currPageNumber: 1,
+			limit: 4,
 		};
 	}
 
@@ -43,6 +45,8 @@ export default class Movies extends Component {
 			});
 		}
 
+		// order set krdiya ab setstate krdo taak irender hojaye phirse
+
 		this.setState({
 			movies: this.state.movies,
 		});
@@ -64,21 +68,29 @@ export default class Movies extends Component {
 			});
 		}
 
+		// order set krdiya ab setstate krdo taak irender hojaye phirse
+
 		this.setState({
 			movies: this.state.movies,
 		});
 	};
 
+	handlePageChange = (pageNumber) => {
+		this.setState({
+			currPageNumber: pageNumber,
+		});
+	};
+
 	render() {
 		console.log('render');
-		// deletion is permanent
+		// deletion is permanent process
 		// filtering/searching ek temporary process hai, permanent nhi
 		// jab render hoga to dekhenge ki kuch hai kya text field mei,agar hai to filtered arr banalenge
 		// baar baar text change hone pe orig arr pe effect nhi hona chahiye
 		// field val state to banega hi kyunki uske change pe baar baar jo UI pe show kr rhe hai wo depend krta hai
 		// to jab baar baar render hoga uske change ke wajah se tabhi uss val ke acc banalenge temp arr
 		// jab re-render hoga text field change hone pe tabhi render process mei filtered arr banalenge acc to text field aur wo show krdenge
-		let {movies, currSearchText} = this.state;
+		let {movies, currSearchText, currPageNumber, limit} = this.state;
 		let filteredArr = [];
 
 		if (currSearchText === '') {
@@ -89,6 +101,31 @@ export default class Movies extends Component {
 				return title.includes(currSearchText.toLowerCase());
 			});
 		}
+
+		// ----------------------Pagination-------------------------------------------
+		// if per page 5(limit) items, 1st page-0to4,2nd page - 5 to 9
+		// so Startingidx = limit*(pageNo-1), endIdx = startingidx + limit - 1
+		// limit hum user se input lenge to wo change hone pe to structure change hoga hi, to wo state banega
+		// currpage number pe bhi depend hoga ki kya show hoga, to yeh bhi state mei jayega, kyunki yeh change hone pe
+		// data change hoga jo show ho rha hai abhi
+		// Pagination bhi temporary process hi hai, to yeh bhi har render pe jo state ki values hongi uske acc
+		// krdenge register
+
+		let numberOfPages = Math.ceil(filteredArr.length / limit);
+		let PagesArr = []; // aise hi empty arr hai baad mei pages ke liye map krne ke liye
+		for (let i = 0; i < numberOfPages; i++) {
+			PagesArr.push(i + 1);
+		}
+
+		let si = limit * (currPageNumber - 1);
+		let ei = si + limit - 1;
+
+		// Ab si se ei tak slice krdo, slice(si,ei)->ei wala is not included->(1,4):1 se 3 tak ajayenge
+		filteredArr = filteredArr.slice(si, ei + 1);
+
+		let prevBtnClass = (currPageNumber - 1 > 0) ? 'page-item' : 'page-item disabled';
+		let nextBtnClass = (currPageNumber + 1 <= PagesArr.length) ? 'page-item' : 'page-item disabled';
+
 		return (
 			<div className="container">
 				<div className="row">
@@ -164,9 +201,52 @@ export default class Movies extends Component {
 								})}
 							</tbody>
 						</table>
+						<div aria-label="...">
+							<ul className="pagination">
+								<li
+									className={prevBtnClass}
+									onClick={() => {
+										if (currPageNumber - 1 > 0) this.handlePageChange(currPageNumber - 1);
+									}}
+								>
+									<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
+										Previous
+									</a>
+								</li>
+								{PagesArr.map((pageNumber) => {
+									let classname = pageNumber === currPageNumber ? 'page-item active' : 'page-item';
+									return (
+										<li
+											key={pageNumber}
+											onClick={() => {
+												this.handlePageChange(pageNumber);
+											}}
+											className={classname}
+										>
+											<a className="page-link" href="#">
+												{pageNumber}
+											</a>
+										</li>
+									);
+								})}
+								<li
+									onClick={() => {
+										if (currPageNumber + 1 <= PagesArr.length) {
+											this.handlePageChange(currPageNumber + 1);
+										}
+									}}
+									className={nextBtnClass}
+								>
+									<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
+										Next
+									</a>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</div>
 		);
 	}
 }
+
