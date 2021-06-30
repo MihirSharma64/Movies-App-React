@@ -10,16 +10,20 @@ export default class Movies extends Component {
 			currSearchText: '',
 			currPageNumber: 1,
 			limit: 4,
+			genres: [{_id: '2321413', name: 'All Genres'}],
+			currGenre: 'All Genres', // kyunki backend wale data mei all genres missing h
 		};
 	}
 
 	async componentDidMount() {
 		console.log('component did mount');
 		let res = await axios.get('https://backend-react-movie.herokuapp.com/movies');
+		let genreRes = await axios.get('https://backend-react-movie.herokuapp.com/genres');
 		console.log(res);
 		this.setState({
 			// ab data agaya hai to setstate krdo taaki phirse render hojaye
 			movies: res.data.movies,
+			genres: [...this.state.genres, ...genreRes.data.genres],
 		});
 	}
 
@@ -99,6 +103,12 @@ export default class Movies extends Component {
 		});
 	};
 
+	handleGenreChange = (genreSelected) => {
+		this.setState({
+			currGenre : genreSelected
+		})
+	}
+
 	render() {
 		console.log('render');
 		// deletion is permanent process
@@ -108,7 +118,7 @@ export default class Movies extends Component {
 		// field val state to banega hi kyunki uske change pe baar baar jo UI pe show kr rhe hai wo depend krta hai
 		// to jab baar baar render hoga uske change ke wajah se tabhi uss val ke acc banalenge temp arr
 		// jab re-render hoga text field change hone pe tabhi render process mei filtered arr banalenge acc to text field aur wo show krdenge
-		let {movies, currSearchText, currPageNumber, limit} = this.state;
+		let {movies, currSearchText, currPageNumber, limit, genres, currGenre} = this.state;
 		let filteredArr = [];
 
 		if (currSearchText === '') {
@@ -145,33 +155,57 @@ export default class Movies extends Component {
 		let nextBtnClass = currPageNumber + 1 <= PagesArr.length ? 'page-item' : 'page-item disabled';
 
 		return (
-			<div className="container">
-				<div className="row">
-					{/*Total 12 cols mei divide hoti h*/}
-					<div className="col-3"></div>
-					<div className="col-9">
-						<input type="search" value={this.state.currSearchText} onChange={this.handleSearchChange}></input>
-						<input type="number" value={this.state.limit} onChange={this.handleLimitChange}></input>
-						<table className="table">
-							<thead>
-								<tr>
-									<th scope="col">#</th>
-									<th scope="col">Title</th>
-									<th scope="col">Genre</th>
-									<th scope="col">
-										<i onClick={this.handleStockSort} className="fas fa-caret-up"></i>
-										Stock
-										<i onClick={this.handleStockSort} className="fas fa-caret-down"></i>
-									</th>
-									<th scope="col">
-										<i onClick={this.handleRateSort} className="fas fa-caret-up"></i>
-										Rate
-										<i onClick={this.handleRateSort} className="fas fa-caret-down"></i>
-									</th>
-									<th></th>
-								</tr>
-							</thead>
-							{/* 
+			<>
+				{/* Loader */}
+				{this.state.movies.length === 0 ? (
+					<div class="spinner-border" role="status">
+						<span class="visually-hidden">Loading...</span>
+					</div>
+				) : (
+					<div className="container">
+						<div className="row">
+							{/*Total 12 cols mei divide hoti h*/}
+							<div className="col-3">
+								<ul className="list-group">
+									{genres.map((genre) => {
+										let classname = genre.name !== currGenre ? 'list-group-item' : 'list-group-item active';
+										return (
+											<li
+												onClick={() => {
+													this.handleGenreChange(genre.name);
+												}}
+												key={genre._id}
+												className={classname}
+											>
+												{genre.name}
+											</li>
+										);
+									})}
+								</ul>
+							</div>
+							<div className="col-9">
+								<input type="search" value={this.state.currSearchText} onChange={this.handleSearchChange}></input>
+								<input type="number" value={this.state.limit} onChange={this.handleLimitChange}></input>
+								<table className="table">
+									<thead>
+										<tr>
+											<th scope="col">#</th>
+											<th scope="col">Title</th>
+											<th scope="col">Genre</th>
+											<th scope="col">
+												<i onClick={this.handleStockSort} className="fas fa-caret-up"></i>
+												Stock
+												<i onClick={this.handleStockSort} className="fas fa-caret-down"></i>
+											</th>
+											<th scope="col">
+												<i onClick={this.handleRateSort} className="fas fa-caret-up"></i>
+												Rate
+												<i onClick={this.handleRateSort} className="fas fa-caret-down"></i>
+											</th>
+											<th></th>
+										</tr>
+									</thead>
+									{/* 
 									{	
 										function abc(){
 											return (<h1>Hello</h1>)
@@ -182,95 +216,97 @@ export default class Movies extends Component {
 										Bas event ke andar use krskte hai
 									}
 							 	*/}
-							<tbody>
-								{filteredArr.map((movieObj) => {
-									return (
-										<tr key={movieObj._id}>
-											{/*React ko identify/differentiate krane ke liye key chahiye hoti h*/}
-											<td></td>
-											<td>{movieObj.title}</td>
-											<td>{movieObj.genre.name}</td>
-											<td>{movieObj.numberInStock}</td>
-											<td>{movieObj.dailyRentalRate}</td>
-											<td>
-												{/* Aisa kr nhi skte kyunki function hi call hojayega bina event trigger huye */}
-												{/* <button onClick={this.handleDelete(movieObj._id)} type="button" className="btn btn-danger">
+									<tbody>
+										{filteredArr.map((movieObj) => {
+											return (
+												<tr key={movieObj._id}>
+													{/*React ko identify/differentiate krane ke liye key chahiye hoti h*/}
+													<td></td>
+													<td>{movieObj.title}</td>
+													<td>{movieObj.genre.name}</td>
+													<td>{movieObj.numberInStock}</td>
+													<td>{movieObj.dailyRentalRate}</td>
+													<td>
+														{/* Aisa kr nhi skte kyunki function hi call hojayega bina event trigger huye */}
+														{/* <button onClick={this.handleDelete(movieObj._id)} type="button" className="btn btn-danger">
 													Delete
 												</button> */}
-												{/*  */}
-												{/* To matlab iss fn ko ab dusre fn se call krdenge: */}
-												{/* But aisa bhi nhi kr skte kyunki andar wala this undefined hoga */}
-												{/* <button onClick={function(){
+														{/*  */}
+														{/* To matlab iss fn ko ab dusre fn se call krdenge: */}
+														{/* But aisa bhi nhi kr skte kyunki andar wala this undefined hoga */}
+														{/* <button onClick={function(){
 													this.handleDelete(movieObj._id)}} type="button" className="btn btn-danger">
 													Delete
 												</button> */}
-												{/* To this ko set krdo uske bhaar wale ke equal using arrow fn */}
-												<button
-													onClick={() => {
-														this.handleDelete(movieObj._id);
-													}}
-													type="button"
-													className="btn btn-danger"
-												>
-													Delete
-												</button>
-											</td>
-										</tr>
-									);
-								})}
-							</tbody>
-						</table>
-						<div aria-label="...">
-							<ul className="pagination">
-								<li
-									className={prevBtnClass}
-									onClick={() => {
-										if (currPageNumber - 1 > 0) this.handlePageChange(currPageNumber - 1);
-									}}
-								>
-									<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
-										Previous
-									</a>
-								</li>
-								{PagesArr.map((pageNumber) => {
-									let classname = pageNumber === currPageNumber ? 'page-item active' : 'page-item';
-									return (
+														{/* To this ko set krdo uske bhaar wale ke equal using arrow fn */}
+														<button
+															onClick={() => {
+																this.handleDelete(movieObj._id);
+															}}
+															type="button"
+															className="btn btn-danger"
+														>
+															Delete
+														</button>
+													</td>
+												</tr>
+											);
+										})}
+									</tbody>
+								</table>
+								<div aria-label="...">
+									<ul className="pagination">
 										<li
-											key={pageNumber}
+											className={prevBtnClass}
 											onClick={() => {
-												this.handlePageChange(pageNumber);
+												if (currPageNumber - 1 > 0) this.handlePageChange(currPageNumber - 1);
 											}}
-											className={classname}
 										>
-											<a className="page-link" href="#">
-												{pageNumber}
+											<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
+												Previous
 											</a>
 										</li>
-									);
-								})}
-								<li
-									onClick={() => {
-										if (currPageNumber + 1 <= PagesArr.length) {
-											this.handlePageChange(currPageNumber + 1);
-										}
-									}}
-									className={nextBtnClass}
-								>
-									<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
-										Next
-									</a>
-								</li>
-							</ul>
+										{PagesArr.map((pageNumber) => {
+											let classname = pageNumber === currPageNumber ? 'page-item active' : 'page-item';
+											return (
+												<li
+													key={pageNumber}
+													onClick={() => {
+														this.handlePageChange(pageNumber);
+													}}
+													className={classname}
+												>
+													<a className="page-link" href="#">
+														{pageNumber}
+													</a>
+												</li>
+											);
+										})}
+										<li
+											onClick={() => {
+												if (currPageNumber + 1 <= PagesArr.length) {
+													this.handlePageChange(currPageNumber + 1);
+												}
+											}}
+											className={nextBtnClass}
+										>
+											<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
+												Next
+											</a>
+										</li>
+									</ul>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				)}
+			</>
 		);
 	}
 }
 
 // jo getMovies se data le rhe hai wo actual mei, server se aayega.. To jab tak wo aayega tabtak kuch nhi dikha skte
-// Sideeffects wali cheeze componeentdidmount mei daalte hai
+// Sideeffects wali cheeze componeentdidmount mei daalte hai, jaise ki network requests, listener attach
 // componentdidmount mei network se request maaregnge aur jab tak wo nhi aya to loader show krdenge
 
 // Axios promise return krta,fetch bhi use krskte the
