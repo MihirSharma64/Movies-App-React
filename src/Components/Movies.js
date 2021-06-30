@@ -105,9 +105,9 @@ export default class Movies extends Component {
 
 	handleGenreChange = (genreSelected) => {
 		this.setState({
-			currGenre : genreSelected
-		})
-	}
+			currGenre: genreSelected,
+		});
+	};
 
 	render() {
 		console.log('render');
@@ -127,6 +127,13 @@ export default class Movies extends Component {
 			filteredArr = movies.filter(function (movieObj) {
 				let title = movieObj.title.toLowerCase();
 				return title.includes(currSearchText.toLowerCase());
+			});
+		}
+
+		////////////////////////////// Genres
+		if (currGenre !== 'All Genres') {
+			filteredArr = filteredArr.filter((movieObj) => {
+				return movieObj.genre.name === currGenre;
 			});
 		}
 
@@ -158,8 +165,8 @@ export default class Movies extends Component {
 			<>
 				{/* Loader */}
 				{this.state.movies.length === 0 ? (
-					<div class="spinner-border" role="status">
-						<span class="visually-hidden">Loading...</span>
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
 					</div>
 				) : (
 					<div className="container">
