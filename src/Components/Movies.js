@@ -130,7 +130,7 @@ export default class Movies extends Component {
 			});
 		}
 
-		////////////////////////////// Genres
+		//--------------------------------- Genres-----------------------------------
 		if (currGenre !== 'All Genres') {
 			filteredArr = filteredArr.filter((movieObj) => {
 				return movieObj.genre.name === currGenre;
