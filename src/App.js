@@ -39,15 +39,44 @@ function App() {
 		// Imp--> agar "/moviesss" pe gye to wo "/movies" se match nhi hoyega
 
 		// Another solution is : use exact keyword
-		<Router>
+		// <Router>
+		// 	<Nav />
+		// 	<Switch>
+		// 		<Route exact path="/" component={Home} />
+		// 		<Route path="/movies" component={Movies} />
+		// 		<Route path="/about" component={About} />
+		// 	</Switch>
+		// </Router>
+		// exact yeh ensure krega ki path aur url equal hai ki nhi, pehle "/" != "/movies" to yeh render ni hoga..Phir "/movies" == "/movies" to wo render krado
+
+
+    // Ab agar props pass krne ho component mei routing ke time
+    // <Router>
+		// 	<Nav />
+		// 	<Switch>
+		// 		<Route exact path="/" component={Home} />
+		// 		<Route path="/movies" component={Movies} />
+    //     {/* Mannlo is auth pass kiya as a prop */}
+		// 		<Route path="/about" component={About} isAuth={true} />
+    //     {/* Aise pass nhi huya hoga about component mei */}
+		// 	</Switch>
+		// </Router>
+
+    // SOlution to pass props:
+    <Router>
 			<Nav />
 			<Switch>
 				<Route exact path="/" component={Home} />
 				<Route path="/movies" component={Movies} />
-				<Route path="/about" component={About} />
+        {/* Render methos ka use krte hai */}
+        {/* iske callback mei routeProps aate hai jo ki route ke internal hote hai, to unko to as it as */}
+        {/* pass krdeta hai,aur saath mei hume jonse karane hote hai wo bhipass krdete hai */}
+				<Route path="/about" render = {(routeProps)=>{
+          <About {...routeProps} isAuth={true}/>
+        }}/>
+        
 			</Switch>
 		</Router>
-		// exact yeh ensure krega ki path aur url equal hai ki nhi, pehle "/" != "/movies" to yeh render ni hoga..Phir "/movies" == "/movies" to wo render krado
 	);
 }
 

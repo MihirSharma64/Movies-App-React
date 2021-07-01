@@ -1,11 +1,12 @@
-import React from 'react'
+import React from 'react';
 
-function About() {
-   return (
-      <div>
-         <h1>This is about component</h1>
-      </div>
-   )
+function About({isAuth}) {
+	console.log(isAuth);
+	return (
+		<div>
+			<h1>This is about component</h1>
+		</div>
+	);
 }
 
-export default About
+export default About;
