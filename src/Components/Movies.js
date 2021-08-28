@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {getMovies} from './getMovies';
+//import {getMovies} from './getMovies';
 import axios from 'axios';
 
 export default class Movies extends Component {
@@ -269,7 +269,7 @@ export default class Movies extends Component {
 												if (currPageNumber - 1 > 0) this.handlePageChange(currPageNumber - 1);
 											}}
 										>
-											<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
+											<a className="page-link" href="w" tabindex="-1" aria-disabled="true">
 												Previous
 											</a>
 										</li>
@@ -283,6 +283,7 @@ export default class Movies extends Component {
 													}}
 													className={classname}
 												>
+												{/*eslint-disable-next-line*/}
 													<a className="page-link" href="#">
 														{pageNumber}
 													</a>
@@ -297,6 +298,7 @@ export default class Movies extends Component {
 											}}
 											className={nextBtnClass}
 										>
+										{/*eslint-disable-next-line*/}
 											<a className="page-link" href="#" tabindex="-1" aria-disabled="true">
 												Next
 											</a>
